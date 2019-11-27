@@ -1,0 +1,39 @@
+{
+  "name": "rentomojo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server": "cross-env NODE_ENV=production node_modules/.bin/babel-node server",
+    "server-dev": "nodemon server --exec node_modules/.bin/babel-node server",
+    "server-spec": "node_modules/.bin/babel-node server/server.spec",
+    "start": "npm run server"
+  },
+  "keywords": [
+    "express",
+    "mongo"
+  ],
+  "author": "Vivek Shankar",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cheerio": "^1.0.0-rc.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.3",
+    "mongodb": "^3.1.8",
+    "mongoose": "^5.7.12",
+    "request": "^2.88.0"
+  },
+  "engines": {
+    "node": "9.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/node": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/register": "^7.0.0",
+    "cross-env": "^5.2.0",
+    "mongodb": "^3.1.10",
+    "nodemon": "^1.18.4"
+  }
+}
