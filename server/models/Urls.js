@@ -1,9 +1,9 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
 // schema for url table
-var urlSchema = new Schema({
+const urlSchema = new Schema({
 
   url : {type:String,default:"",required:true,index:true,unique:true},
   referenceCount : {type:Number,default:1,required:true},

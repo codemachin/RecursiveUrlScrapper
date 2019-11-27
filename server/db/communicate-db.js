@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const urlsModel = mongoose.model('Urls')
 
 // function to add or update url in db
-c=0
 const addOrUpdateUrl = async element=>{
     await connectDB();
     let query = { url: element.url };
@@ -11,9 +10,7 @@ const addOrUpdateUrl = async element=>{
     let options = {upsert:true};
     try {
         await urlsModel.findOneAndUpdate(query,update,options)
-        console.log("done",c++)
     } catch (error) {
-        console.log(error)
         // handling duplicate key error as findOneAndUpdate is not really atomic.
         if( error.code==11000 ){
             await urlsModel.findOneAndUpdate(query,update,options)
@@ -28,7 +25,7 @@ const fetchResults = async element=>{
         const results = await urlsModel.find({})
         return results
     } catch (error) {
-        console.log(error)
+        return []
     }
 };
 

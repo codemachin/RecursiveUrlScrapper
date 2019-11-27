@@ -4,6 +4,7 @@ const path = require('path')
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const logger = require('morgan');
 
 require('./db/initialize-db');
 const { recursiveCrawl } = require('./controllers/recursiveCrawl')
@@ -14,6 +15,7 @@ let app = express();
 
 // use all middlewares
 app.use(
+    logger('dev'),
     cors(),
     bodyParser.urlencoded({extended:true}),
     bodyParser.json()

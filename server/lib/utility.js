@@ -17,51 +17,23 @@ const options = {
   host: process.env.CRAWLURL || 'https://medium.com'
 };
 
-// function to scrape urls by a tags
-const scrape = (req) => {
-    return new Promise((resolve, reject) => {
-        let urls = [];
-        request(req.host, (err, res, body) => {
-            if (err) {
-                console.log(err)
-                resolve([]);
-            }
-            if (body) {
-                $ = cheerio.load(body);
-                links = $('a');
-                $(links).each(function (i, link) {
-                    const url = $(link).attr('href')
-                    if(url && url.includes(options.host))
-                        if(isValidUrl(url))
-                            urls.push(url);
-                });
-                urls=[...new Set(urls)]
-                resolve(urls)
-            } else {
-                resolve(urls)
-            }
-        })
-    })
-}
-
 // Class function with states and methods
 function recursiveState(){
+    // array to keep all urls used by the recursive scrape method
     this.allUrls = []
     this.count = 5
     this.counter = 0
 
+    // recursive function to scrape urls by A tags
     this.scrape = () => {
         while (this.allUrls.length && this.counter < this.count) {
-            console.log("scraping")
             let urls = [];
             let run = this.allUrls.shift()
             this.counter++
             request(run, (err, res, body) => {
                 if (err) {
-                    console.log(err)
                     this.counter--
                     this.scrape()
-                    // resolve([]);
                 }
                 if (body) {
                     $ = cheerio.load(body);
@@ -72,13 +44,15 @@ function recursiveState(){
                             if(isValidUrl(url))
                                 urls.push(url);
                     });
+                    // remove duplicates
                     urls=[...new Set(urls)]
+                    // filter urls not present in this.allUrls
                     let filteredNewUrls = urls.filter(e => !this.allUrls.includes(e))
+                    // add to array for scraping
                     this.allUrls = [...this.allUrls,...filteredNewUrls]
                     saveToDB(filteredNewUrls)
                     this.counter--
                     this.scrape()
-                    // resolve(urls)
                 } else {
                     this.counter--
                     this.scrape()
@@ -87,29 +61,10 @@ function recursiveState(){
         }
     }
 
+    // function to start the scraping process
     this.start = (url) => {
         this.allUrls.push(url)
         this.scrape()
-    }
-    
-    // method used for recursively crawl given array and save to db
-    this.recursiveCrawl = async(urls) => {
-        while (urls.length && this.counter < this.count) {
-            this.counter++
-            for(let url of urls){
-                let option = { host: url }
-                let newUrls = await scrape(option)
-                let filteredNewUrls = newUrls.filter(e => !this.allUrls.includes(e))
-                // console.log("urls",filteredNewUrls)
-                if(filteredNewUrls.length){
-                    this.allUrls = [...this.allUrls,...filteredNewUrls]
-                    saveToDB(filteredNewUrls)
-                    this.recursiveCrawl(filteredNewUrls)
-                }                
-            }
-            this.counter--
-        }
-        if(urls.length) this.recursiveCrawl(urls)
     }
 
     // gets url in current state
@@ -119,4 +74,4 @@ function recursiveState(){
 
 }
 
-module.exports = {isValidUrl,scrape,recursiveState}
+module.exports = {isValidUrl,recursiveState}
