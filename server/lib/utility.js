@@ -21,36 +21,6 @@ const options = {
 const scrape = (req) => {
     return new Promise((resolve, reject) => {
         let urls = [];
-        // req.host = req.host.replace(/(^\w+:|^)\/\//, '');
-        // var request = http.get(req, function(resp) {
-        //     var bodyChunks = [];
-        //     resp.on('data', function(chunk) {
-        //         bodyChunks.push(chunk);
-        //     }).on('end', function() {
-        //         var body = Buffer.concat(bodyChunks);
-        //         if (body) {
-        //             $ = cheerio.load(body);
-        //             links = $('a');
-        //             $(links).each(function (i, link) {
-        //                 const url = $(link).attr('href')
-        //                 let match = options.host.replace(/(^\w+:|^)\/\//, '')
-        //                 if(url && url.includes(match))
-        //                     if(isValidUrl(url))
-        //                         taskUrls.push(url);
-        //             });
-        //             taskUrls=[...new Set(taskUrls)]
-        //             resolve(taskUrls)
-        //         } else {
-        //             resolve(taskUrls)
-        //         }
-        //     })
-        // });
-
-        // request.on('error', function(e) {
-        //     // console.log('ERROR: ' + e.message);
-        //     resolve([])
-        // });
-
         request(req.host, (err, res, body) => {
             if (err) {
                 console.log(err)
@@ -79,10 +49,52 @@ function recursiveState(){
     this.allUrls = []
     this.count = 5
     this.counter = 0
+
+    this.scrape = () => {
+        while (this.allUrls.length && this.counter < this.count) {
+            console.log("scraping")
+            let urls = [];
+            let run = this.allUrls.shift()
+            this.counter++
+            request(run, (err, res, body) => {
+                if (err) {
+                    console.log(err)
+                    this.counter--
+                    this.scrape()
+                    // resolve([]);
+                }
+                if (body) {
+                    $ = cheerio.load(body);
+                    links = $('a');
+                    $(links).each(function (i, link) {
+                        const url = $(link).attr('href')
+                        if(url && url.includes(options.host))
+                            if(isValidUrl(url))
+                                urls.push(url);
+                    });
+                    urls=[...new Set(urls)]
+                    let filteredNewUrls = urls.filter(e => !this.allUrls.includes(e))
+                    this.allUrls = [...this.allUrls,...filteredNewUrls]
+                    saveToDB(filteredNewUrls)
+                    this.counter--
+                    this.scrape()
+                    // resolve(urls)
+                } else {
+                    this.counter--
+                    this.scrape()
+                }
+            })
+        }
+    }
+
+    this.start = (url) => {
+        this.allUrls.push(url)
+        this.scrape()
+    }
     
     // method used for recursively crawl given array and save to db
     this.recursiveCrawl = async(urls) => {
-        while (this.counter < count) {
+        while (urls.length && this.counter < this.count) {
             this.counter++
             for(let url of urls){
                 let option = { host: url }
@@ -93,11 +105,11 @@ function recursiveState(){
                     this.allUrls = [...this.allUrls,...filteredNewUrls]
                     saveToDB(filteredNewUrls)
                     this.recursiveCrawl(filteredNewUrls)
-                }
-                this.counter--
+                }                
             }
+            this.counter--
         }
-        this.recursiveCrawl(urls)
+        if(urls.length) this.recursiveCrawl(urls)
     }
 
     // gets url in current state

@@ -10,12 +10,13 @@ const options = {
 
 const recursiveCrawl = app => {
 
-    // api route to start the crawling process
-    let recursiveStateObj = new recursiveState()
 
+    // api route to start the crawling process
     app.get("/crawl",async(req,res)=>{
+        let recursiveStateObj = new recursiveState()
         try{
-            recursiveStateObj.recursiveCrawl([options.host])
+            // recursiveStateObj.recursiveCrawl([options.host])
+            recursiveStateObj.start(options.host)
             res.send(`<h1>Crawling Started</h1><br><br><a href='/get'>Fetch Results</a>`)
         }catch(e){
             console.log("error",e)
