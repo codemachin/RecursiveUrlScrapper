@@ -34,14 +34,18 @@ const setSameValues = (string) => {
 
 // Class function with states and methods
 function recursiveState(){
+    //added set for better performance
+    this.m = new Map()
+
     // array to keep all urls used by the recursive scrape method
-    this.globalUrlArray = []
+    // this.globalUrlArray = []
     this.allUrls = []
     this.count = 5
     this.counter = 0
 
     // recursive function to scrape urls by A tags
     this.scrape = () => {
+    console.log("here")
         while (this.allUrls.length && this.counter < this.count) {
             let urls = [];
             let run = this.allUrls.shift()
@@ -63,11 +67,16 @@ function recursiveState(){
                     });
                     // remove duplicates
                     urls=[...new Set(urls)]
+    
                     // filter urls not present in this.globalUrlArray
-                    let filteredNewUrls = urls.filter(e => !this.globalUrlArray.includes(e))
+                    // let filteredNewUrls = urls.filter(e => !this.globalUrlArray.includes(e))
+
+                    // set will have better performance over array
+                    let filteredNewUrls = urls.filter(e => !this.m.has(e))
                     // add to array for scraping
                     this.allUrls = [...this.allUrls,...filteredNewUrls]
-                    this.globalUrlArray = [...this.globalUrlArray,...filteredNewUrls]
+                    // this.globalUrlArray = [...this.globalUrlArray,...filteredNewUrls]
+                    filteredNewUrls.reduce((a,b)=> (a.set(b,true),a),this.m);
                     saveToDB(filteredNewUrls)
                     this.counter--
                     this.scrape()
@@ -81,7 +90,8 @@ function recursiveState(){
 
     // function to start the scraping process
     this.start = (url) => {
-        this.globalUrlArray.push(url)
+        // this.globalUrlArray.push(url)
+        this.m.set(url,true)
         this.allUrls.push(url)
         this.scrape()
     }
