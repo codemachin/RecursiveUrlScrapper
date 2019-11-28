@@ -41,6 +41,7 @@ Setting up the local server
 
 ```
 1) Run command npm install
+2) (Optional Step) Source the environment variables by running: source stage.env
 2) After all dependencies are installed. Run command : npm start, in your terminal
 3) Let the server start
 ```

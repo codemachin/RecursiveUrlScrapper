@@ -1,4 +1,4 @@
-const { isValidUrl,scrape,recursiveState } = require('../lib/utility');
+const { isValidUrl,recursiveState } = require('../lib/utility');
 const {fetchResults} = require('../db/communicate-db');
 
 var http = require('https');

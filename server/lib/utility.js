@@ -17,9 +17,25 @@ const options = {
   host: process.env.CRAWLURL || 'https://medium.com'
 };
 
+// this function convert all url keys to have same value
+// example input: http://xyz.com?a=23&b=52
+//example output: http://xyz.com?a=101&b=101
+const setSameValues = (string) => {
+    var url = new URL(string);
+    var query_string = url.search;
+    var search_params = new URLSearchParams(query_string); 
+    for(var key of search_params.keys()) { 
+        search_params.set(key, '101');
+    }
+    url.search = search_params.toString();
+    var new_url = url.toString();
+    return new_url
+}
+
 // Class function with states and methods
 function recursiveState(){
     // array to keep all urls used by the recursive scrape method
+    this.globalUrlArray = []
     this.allUrls = []
     this.count = 5
     this.counter = 0
@@ -38,18 +54,20 @@ function recursiveState(){
                 if (body) {
                     $ = cheerio.load(body);
                     links = $('a');
+                    // iterate and push ony urls with different keys, disregarding values
                     $(links).each(function (i, link) {
                         const url = $(link).attr('href')
                         if(url && url.includes(options.host))
                             if(isValidUrl(url))
-                                urls.push(url);
+                                urls.push(setSameValues(url));
                     });
                     // remove duplicates
                     urls=[...new Set(urls)]
-                    // filter urls not present in this.allUrls
-                    let filteredNewUrls = urls.filter(e => !this.allUrls.includes(e))
+                    // filter urls not present in this.globalUrlArray
+                    let filteredNewUrls = urls.filter(e => !this.globalUrlArray.includes(e))
                     // add to array for scraping
                     this.allUrls = [...this.allUrls,...filteredNewUrls]
+                    this.globalUrlArray = [...this.globalUrlArray,...filteredNewUrls]
                     saveToDB(filteredNewUrls)
                     this.counter--
                     this.scrape()
@@ -63,6 +81,7 @@ function recursiveState(){
 
     // function to start the scraping process
     this.start = (url) => {
+        this.globalUrlArray.push(url)
         this.allUrls.push(url)
         this.scrape()
     }
