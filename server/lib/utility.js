@@ -45,7 +45,6 @@ function recursiveState(){
 
     // recursive function to scrape urls by A tags
     this.scrape = () => {
-    console.log("here")
         while (this.allUrls.length && this.counter < this.count) {
             let urls = [];
             let run = this.allUrls.shift()
