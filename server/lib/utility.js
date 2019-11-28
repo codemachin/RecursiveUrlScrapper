@@ -34,7 +34,7 @@ const setSameValues = (string) => {
 
 // Class function with states and methods
 function recursiveState(){
-    //added set for better performance
+    //added map for better performance
     this.m = new Map()
 
     // array to keep all urls used by the recursive scrape method
@@ -71,7 +71,7 @@ function recursiveState(){
                     // filter urls not present in this.globalUrlArray
                     // let filteredNewUrls = urls.filter(e => !this.globalUrlArray.includes(e))
 
-                    // set will have better performance over array
+                    // Map will have better performance over array
                     let filteredNewUrls = urls.filter(e => !this.m.has(e))
                     // add to array for scraping
                     this.allUrls = [...this.allUrls,...filteredNewUrls]
